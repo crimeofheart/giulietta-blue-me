@@ -1,0 +1,21 @@
+[Unit]
+Description=Wi-Fi on at every boot: forget a Wi-Fi off that standby left saved
+# Standby's "nmcli radio wifi off" is saved twice: in NetworkManager.state, and
+# in systemd-rfkill's state file, from which the radio is blocked again when the
+# chip appears, about 60 s after power-on. A power cut in standby leaves both,
+# and NetworkManager does not lift the block by itself (2026-10-02: no Wi-Fi on
+# any boot). Switching it on from the standby service did not help: that ran
+# before the chip was there, and the saved block came after it. So both are
+# reset here, before either service reads them.
+DefaultDependencies=no
+RequiresMountsFor=/var/lib
+After=systemd-remount-fs.service
+Before=systemd-rfkill.socket systemd-rfkill.service NetworkManager.service shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'for f in /var/lib/systemd/rfkill/*:wlan; do [ -f "$$f" ] && echo 0 > "$$f"; done; sed -i "s/^WirelessEnabled=false/WirelessEnabled=true/" /var/lib/NetworkManager/NetworkManager.state; true'
+
+[Install]
+WantedBy=sysinit.target

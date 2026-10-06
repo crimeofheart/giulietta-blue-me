@@ -1,0 +1,40 @@
+[Unit]
+Description=Blue&Me replacement (Alfa Romeo Giulietta 940)
+Documentation=file:/opt/blueandme/README.md
+After=network.target dbus.service bluetooth.service sys-subsystem-net-devices-can0.device can0.service
+# After the boot-time page to the phone: on one core, this app's Python
+# start-up would slow it. At boot PROXI is lost anyway (gate D3).
+After=blueandme-bt-firstpage.service
+Wants=bluetooth.service
+BindsTo=sys-subsystem-net-devices-can0.device
+# Never run against an interface can0.service failed to configure: that is the
+# listen-only controller mode missing, with only the software gate left.
+Requires=can0.service
+# The car cuts power without warning. Do not give up restarting. (This lives in
+# [Unit]; in [Service], where it was until 2026-09-24, systemd ignores it.)
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/opt/blueandme/.venv/bin/blueandme-giulietta --config /etc/blueandme/config.yaml
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=20
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme
+
+# The service needs raw CAN sockets and, for shutdown, systemctl poweroff.
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/blueandme
+# /run/blueandme/mic-mute: the wheel's mute button, read by the mic relay.
+RuntimeDirectory=blueandme
+RuntimeDirectoryMode=0755
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

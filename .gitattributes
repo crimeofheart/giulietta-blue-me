@@ -1,0 +1,2 @@
+# Scripts and units are copied to the Pi from Windows too: always LF.
+* text=auto eol=lf

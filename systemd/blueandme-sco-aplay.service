@@ -1,0 +1,44 @@
+[Unit]
+Description=BlueALSA call audio player (phone to sound card)
+Documentation=man:bluealsa-aplay(1)
+# A separate instance from the stock bluealsa-aplay, which keeps playing music.
+# One instance with --profile-a2dp --profile-sco loses music for good: on the
+# bench (2026-09-24) its worker exited when the hands-free link dropped and
+# never went back to A2DP.
+Requisite=dbus.service
+After=bluealsa.service blueandme-sco-route.service
+
+[Service]
+Type=simple
+# bluealsa-aplay buffers 500 ms by default, which a call hears as delay.
+ExecStart=/usr/bin/bluealsa-aplay --profile-sco --pcm-buffer-time=150000 --pcm-period-time=30000
+Restart=on-failure
+# The same sandbox as the stock bluealsa-aplay.service.
+CapabilityBoundingSet=
+DeviceAllow=char-alsa rw
+DevicePolicy=closed
+IPAddressDeny=any
+LockPersonality=true
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+SystemCallFilter=~@resources @privileged
+UMask=0077
+
+[Install]
+WantedBy=bluetooth.target

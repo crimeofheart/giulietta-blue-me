@@ -1,0 +1,19 @@
+[Unit]
+Description=Route the onboard Bluetooth chip's call audio (SCO) over HCI
+Documentation=file:/opt/blueandme/README.md
+# The Zero W's BCM43438 sends SCO to its PCM pins by default, which lead
+# nowhere, so a call's audio never reaches BlueALSA. This vendor command
+# (Write_SCO_PCM_Int_Param: routing = HCI) fixes that. Proven on the bench
+# 2026-09-24: the answer is 01 1C FC 00, status 00 = success. The setting is
+# lost whenever the chip resets, so it runs at every boot, once hci0 is up.
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/sh -c 'for i in $$(seq 30); do hciconfig hci0 2>/dev/null | grep -q UP && exit 0; sleep 1; done; echo "hci0 not up after 30 s"; exit 1'
+ExecStart=/usr/bin/hcitool cmd 0x3f 0x1c 0x01 0x02 0x00 0x01 0x01
+
+[Install]
+WantedBy=bluetooth.target

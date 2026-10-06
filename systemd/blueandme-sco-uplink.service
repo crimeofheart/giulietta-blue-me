@@ -1,0 +1,31 @@
+[Unit]
+Description=Hands-free uplink: the sound card's mic to the phone during a call
+Documentation=file:/opt/blueandme/README.md
+Requisite=dbus.service
+After=bluealsa.service blueandme-sco-route.service
+# After the boot-time page: its Python start-up would compete with it.
+After=blueandme-bt-firstpage.service
+# Keep restarting; a phone call must never find the uplink given up.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+# Optional per-install tuning, e.g. UPLINK_ARGS="--gain-db 18" for headphones
+# used as a bench mic. $UPLINK_ARGS must stay bare so systemd splits it.
+EnvironmentFile=-/etc/blueandme/sco-uplink.env
+ExecStart=/opt/blueandme/.venv/bin/blueandme-sco-uplink $UPLINK_ARGS
+Restart=on-failure
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme-sco-uplink
+# Ahead of everything else on the single core: arecord and aplay (children,
+# which inherit it) must never miss a buffer deadline during a call.
+Nice=-10
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+
+[Install]
+WantedBy=bluetooth.target

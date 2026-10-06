@@ -1,0 +1,19 @@
+[Unit]
+Description=Standby while parked: lean once the car sleeps, awake with it
+Documentation=file:/opt/blueandme/README.md
+# Reads can0's receive counter and the ignition GPIO; switches Bluetooth, Wi-Fi,
+# the CPU governor and the LED; at the end of the hold, powers off for the
+# latch. Transmits nothing. See blueandme/power/standby.py.
+After=can0.service bluetooth.service NetworkManager.service
+
+[Service]
+Type=simple
+ExecStart=/opt/blueandme/.venv/bin/blueandme-standby --config /etc/blueandme/config.yaml
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme-standby
+
+[Install]
+WantedBy=multi-user.target

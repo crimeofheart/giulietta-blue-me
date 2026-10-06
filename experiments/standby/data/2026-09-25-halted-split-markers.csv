@@ -1,0 +1,8 @@
+unix_time,marker
+1790343485.339,R running, idle, phone connected (reference)
+1790343523.505,H1 halted, everything attached
+1790343690.776,H2 halted, sound card unplugged
+1790343779.641,H3 halted, card unplugged, CAN board 5 V off
+1790343867.020,H4 halted, bare Pi (card, CAN 5 V and 3.3 V off)
+1790343991.145,U unplugged to reconnect the parts
+1790344038.169,"B power back: cold boot, everything attached"

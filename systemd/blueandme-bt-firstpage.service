@@ -1,0 +1,18 @@
+[Unit]
+Description=Page the paired phone as soon as Bluetooth audio is ready, at boot
+Documentation=file:/opt/blueandme/README.md
+# The first page only, without Python's start-up time; blueandme-bt-reconnect
+# takes over after it. See /usr/local/libexec/blueandme-bt-firstpage.
+After=bluetooth.service bluealsa.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/blueandme-bt-firstpage
+TimeoutStartSec=45
+Nice=-5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme-bt-firstpage
+
+[Install]
+WantedBy=bluetooth.target

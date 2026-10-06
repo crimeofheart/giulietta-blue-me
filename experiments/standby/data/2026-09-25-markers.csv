@@ -1,0 +1,22 @@
+unix_time,marker
+1790337392.146,logging started (Pi booting after replug through meter)
+1790337440.253,W1 idle: phone connected, nothing playing, Wi-Fi on
+1790337496.814,W1 idle: phone connected, nothing playing, Wi-Fi on
+1790337548.180,W2 music playing
+1790337559.594,W1 idle: phone connected, nothing playing, Wi-Fi on
+1790337594.139,W2 music playing
+1790337786.745,W3 call up
+1790337877.649,W1 idle: phone connected, nothing playing, Wi-Fi on
+1790337888.255,P1 phone away: link down, Pi paging every 20 s
+1790337974.331,W1 idle: phone connected, nothing playing, Wi-Fi on
+1790338047.000,S1 parked: reconnect stopped, Bluetooth off, Wi-Fi on
+1790338140.000,S2 + Wi-Fi off
+1790338232.000,S3 + CPU powersave, LED off (card stayed active)
+1790338322.000,WAKE: CAN frame, Bluetooth on, page (music 8.4 s, calls 9.1 s)
+1790338335.000,after wake: restored, Wi-Fi reconnecting, phone connected
+1790338419.364,X1 Bluetooth off, Wi-Fi on, sound card attached
+1790338484.626,X2 Bluetooth off, Wi-Fi on, sound card detached (USB unbound)
+1790338554.315,X3 restored: card attached, Bluetooth on
+1790338588.137,H halted (sudo systemctl halt)
+1790339099.491,U unplugged (0 A)
+1790339103.181,B power back: cold boot (kernel starts 3.8 s later)

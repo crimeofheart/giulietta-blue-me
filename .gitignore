@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Vehicle captures are yours; they can contain a VIN, GPS traces and clock data.
+# Commit deliberately, not by accident.
+captures/*.log
+captures/*.meta.json
+
+# Fetched by tests/fixtures/fetch.sh (fmntf/fiatcan, no licence: not ours to ship).
+tests/fixtures/doblo-*.log

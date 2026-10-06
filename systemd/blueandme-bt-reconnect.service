@@ -1,0 +1,26 @@
+[Unit]
+Description=Call the paired phone back after boot
+Documentation=file:/opt/blueandme/README.md
+# The phone reconnects by itself only when its own Bluetooth comes on, not when
+# the Pi comes up after it, which is the car's case. See blueandme/media/phone_link.py.
+Requisite=dbus.service
+After=bluetooth.service bluealsa.service blueandme-bt-firstpage.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/opt/blueandme/.venv/bin/blueandme-bt-reconnect
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme-bt-reconnect
+# First in line for the one core at boot: the phone waits on this (install.sh).
+Nice=-5
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+
+[Install]
+WantedBy=bluetooth.target

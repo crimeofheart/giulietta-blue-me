@@ -1,0 +1,12 @@
+# Installed by the Blue&Me replacement's install.sh.
+#
+# The USB sound card, a Ugreen adapter on a C-Media HS-100B (0d8c:0014), powers
+# up with its own mic auto gain on. Calls need fixed mic gain, because gain that
+# moves on its own defeats echo cancellation. Mic Playback loops the mic straight
+# to the output, which in the car would send the cabin mic into the radio; it is
+# off by default and is forced off here too.
+#
+# Numbered after 90-alsa-restore so that a saved mixer state cannot override it.
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="0d8c", ATTRS{idProduct}=="0014", \
+  RUN+="/usr/bin/amixer -q -c $attr{device/number} cset name='Auto Gain Control' off", \
+  RUN+="/usr/bin/amixer -q -c $attr{device/number} cset name='Mic Playback Switch' off"

@@ -1,0 +1,75 @@
+# Blue&Me replacement for Alfa Romeo Giulietta 940 -- default configuration.
+#
+# The shipped defaults are the safe ones: listen-only and an empty allow-list.
+# A fresh install therefore cannot transmit even if it is wired to a live car.
+
+can:
+  interface: can0
+  bitrate: 50000
+
+  # listen-only | gated-tx | tx
+  #   listen-only  nothing is transmitted, and the controller is put in
+  #                listen-only mode so it does not even acknowledge frames.
+  #   gated-tx     transmit only the frames named in allowed_tx_frames.
+  #                This is the mode for bring-up, one frame at a time.
+  #   tx           transmit anything meeting min_tx_confidence. Not for bring-up.
+  mode: listen-only
+
+  # giulietta940 is the only profile that may ever transmit. doblo263 and
+  # alfa939 describe other vehicles and are loadable for capture comparison only.
+  profile: giulietta940
+
+  # UNKNOWN | OTHER_VEHICLE | LIKELY_SHARED | INFERRED_940 | CONFIRMED_940
+  # Do not lower this. A frame below CONFIRMED_940 has not been observed on this
+  # car, and putting an unobserved frame on a live vehicle bus is how you find
+  # out what else was listening.
+  min_tx_confidence: CONFIRMED_940
+
+  # Explicit allow-list for gated-tx. Add exactly one frame, test it in the car,
+  # then add the next. Order from the plan:
+  #   1. bm_status_response   does the BC stop reporting the node missing?
+  #   2. bm_proxi_response    does the odometer stop blinking?
+  #   3. bm_watchdog
+  #   4. bm_audio_channel     does the radio offer the Blue&Me source?
+  #   5. bm_track_time, bm_text_message
+  allowed_tx_frames: []
+
+  # This car's PROXI value. About a second after the bus wakes, the Body
+  # Computer sends 1E114000# and every other node answers with the same six
+  # bytes (1E11400A#..., 1E114003#..., 1E11401A#... on the car this was built
+  # for). Read them from a recording of your own car and put the 12 hex digits
+  # here, in quotes. Empty: the challenge is not answered. Never use another
+  # car's value.
+  proxi_value: ""
+
+bluetooth:
+  name: "Blue&Me"
+  pairable: true
+  pairing_timeout_s: 0        # 0 = always pairable
+  auto_reconnect: true
+  reconnect_interval_s: 10
+  # ALSA device for the USB sound card. install.sh makes the card (ALSA name
+  # "Device", C-Media 0d8c:0014) the default in /etc/asound.conf, so "default"
+  # reaches it; plughw:CARD=Device names it explicitly.
+  alsa_device: default
+
+power:
+  shutdown_on_sleep_request: true
+  shutdown_delay_s: 30
+  stay_awake_after_key_off_s: 0
+  # Standby while parked: Bluetooth, Wi-Fi and the CPU go lean once the bus has
+  # been quiet this long with the ignition off; the next CAN frame or the
+  # ignition wakes it; after the hold the Pi halts (~25 mA) until the ignition
+  # pulls GPIO3 low (key on = cold boot) or the power is cycled.
+  # Armed only once a car has been seen, so a bench Pi never goes lean.
+  standby: true
+  standby_after_quiet_s: 60
+  standby_hold_h: 72
+  ignition_gpio: null        # 3 (header pin 5) once wired: the only pin that wakes a halted Pi
+  ignition_active_low: false # true behind an optocoupler
+  # BCM number the kernel raises when halted (dtoverlay=gpio-poweroff,gpiopin=N),
+  # only if the (shelved) power latch is ever built.
+  poweroff_gpio: null
+
+log_level: INFO
+capture_dir: /var/lib/blueandme/captures

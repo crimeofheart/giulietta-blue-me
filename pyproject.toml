@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blueandme-giulietta"
+version = "0.1.0"
+description = "Blue&Me replacement for the Alfa Romeo Giulietta 940 on a Raspberry Pi Zero W"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "python-can>=4.0",
+    "PyYAML>=5.3",
+]
+
+[project.optional-dependencies]
+# Installed from apt on the Pi (python3-dbus, python3-gi) rather than pip, because
+# the wheels need a compiler the Zero W would take a very long time to run.
+dev = ["pytest>=7"]
+
+[project.scripts]
+blueandme-giulietta = "blueandme.app:main"
+blueandme-capture = "blueandme.tools.capture:main"
+blueandme-decode = "blueandme.tools.decode:main"
+blueandme-diff = "blueandme.tools.diff:main"
+blueandme-status = "blueandme.tools.status:main"
+blueandme-protocol-map = "blueandme.tools.protocol_map:main"
+blueandme-sco-uplink = "blueandme.media.sco_uplink:main"
+blueandme-bt-reconnect = "blueandme.media.phone_link:reconnect_main"
+blueandme-pair = "blueandme.media.phone_link:pair_main"
+blueandme-call = "blueandme.media.call_control:main"
+blueandme-standby = "blueandme.power.standby:main"
+
+[tool.setuptools.packages.find]
+include = ["blueandme*"]
+
+[tool.setuptools.package-data]
+blueandme = ["config/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,30 @@
+[Unit]
+Description=Bring up the B-CAN interface for Blue&Me
+Before=blueandme-giulietta.service
+BindsTo=sys-subsystem-net-devices-can0.device
+After=sys-subsystem-net-devices-can0.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/blueandme/can0.env
+# CTRLMODE is "listen-only on" by default. A controller in listen-only mode does
+# not transmit acknowledge bits, so it physically cannot disturb the vehicle bus.
+# Removing it is a deliberate step in the Phase 4 bring-up, not a default.
+# $CTRLMODE must stay bare and on its own: systemd word-splits only that form.
+# "${CTRLMODE}" arrives as one argument ("listen-only on") and ip rejects it,
+# leaving can0 unconfigured -- and in the empty normal-mode case it would pass
+# an empty-string argument instead of nothing.
+# restart-ms: with 0 (the default) the mcp251x driver answers a bus-off by
+# putting the chip to sleep, and can0 hears nothing until it is taken down and
+# up; with any other value it leaves the MCP2515 to rejoin by itself (128 x 11
+# recessive bits, 28 ms at 50 kbit/s). A literal, not a can0.env variable: the
+# installed can0.env is kept across reinstalls and would not have it. It can be
+# set only while can0 is down, and the scripts that change the mode leave it.
+ExecStart=/sbin/ip link set can0 type can bitrate ${BITRATE} restart-ms 1000 $CTRLMODE
+ExecStart=/sbin/ip link set can0 txqueuelen 128
+ExecStart=/sbin/ip link set up can0
+ExecStop=/sbin/ip link set down can0
+
+[Install]
+WantedBy=multi-user.target

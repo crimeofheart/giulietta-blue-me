@@ -1,0 +1,21 @@
+[Unit]
+Description=Wi-Fi off while the phone's audio runs (one radio for Wi-Fi and Bluetooth)
+Documentation=file:/opt/blueandme/README.md
+# Wi-Fi traffic on the shared radio drops the phone's audio packets. See
+# /usr/local/libexec/blueandme-wifi-quiet.
+After=bluealsa.service NetworkManager.service blueandme-bt-firstpage.service
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/blueandme/wifi-quiet.env
+ExecStart=/usr/local/libexec/blueandme-wifi-quiet
+# Stopped with the Wi-Fi off by this service: leave the Pi reachable.
+ExecStopPost=/bin/sh -c 'if [ -e /run/blueandme-wifi-quiet.off ]; then rm -f /run/blueandme-wifi-quiet.off; nmcli radio wifi on; fi; true'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blueandme-wifi-quiet
+
+[Install]
+WantedBy=multi-user.target
